@@ -1,4 +1,6 @@
 CREATE DATABASE OnlineShop_DB;
+GO
+
 USE OnlineShop_DB;
 
 CREATE TABLE Customer (
