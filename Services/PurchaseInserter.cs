@@ -8,9 +8,14 @@ namespace OnlineShopDataUploader.Services
     /// Простая обертка над сгенерированным EFCore'ом <c>OnlineShopDbContext</c>'ом, 
     /// вставляющая в базу данных записи
     /// </summary>
-    public class PurchasesInserter
+    public class PurchaseInserter : IPurchaseInserter
     {        
-        readonly OnlineShopDbContext db = new();
+        readonly OnlineShopDbContext db;
+
+        public PurchaseInserter(OnlineShopDbContext db)
+        {
+            this.db = db;
+        }
 
         /// <summary>
         /// Вставка записей о покупке в базу данных

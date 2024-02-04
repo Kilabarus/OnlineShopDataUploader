@@ -14,7 +14,7 @@ namespace OnlineShopDataUploader.Services
     /// <summary>
     /// Парсер XML-файла с форматом, заданным в XML-файле DataExample.xml
     /// </summary>
-    public static class PurchasesXmlDeserializer
+    public class PurchasesXmlDeserializer : IPurchasesFileDeserializer
     {
         /// <summary>
         /// Получение XML-элементов по их имени внутри родительского элемента
@@ -24,7 +24,7 @@ namespace OnlineShopDataUploader.Services
         /// <returns>Список найденных элементов</returns>
         /// <exception cref="XmlElementAbsenceException"><paramref name="parent"/> 
         /// не содержал ни одного элемента с именем <paramref name="elementsName"/></exception>
-        private static IEnumerable<XElement> GetElements(XElement parent, string elementsName)
+        private IEnumerable<XElement> GetElements(XElement parent, string elementsName)
         {
             IEnumerable<XElement> elements = parent.Elements(elementsName);
 
@@ -45,7 +45,7 @@ namespace OnlineShopDataUploader.Services
         /// <param name="elementName">Имя элемента</param>
         /// <returns>Найденный элемент</returns>
         /// <exception cref="XmlElementAbsenceException"><paramref name="parent"/> не содержал элемента с именем <paramref name="elementName"/></exception>
-        private static XElement GetElement(XElement parent, string elementName)
+        private XElement GetElement(XElement parent, string elementName)
         {
             XElement element = parent.Element(elementName)
                 ?? throw new XmlElementAbsenceException(
@@ -61,7 +61,7 @@ namespace OnlineShopDataUploader.Services
         /// <param name="parent">Родительский элемент, содержащий необходимый элемент</param>
         /// <param name="elementName">Имя элемента</param>
         /// <returns>Значение найденного элемента</returns>
-        private static string GetElementValue(XElement parent, string elementName)
+        private string GetElementValue(XElement parent, string elementName)
         {
             return GetElement(parent, elementName).Value;
         }
@@ -72,7 +72,7 @@ namespace OnlineShopDataUploader.Services
         /// <param name="xmlFilePath">Путь к XML-файлу</param>
         /// <returns><c>Task</c> со списком покупок</returns>
         /// <exception cref="XmlFormatException">XML-файл <paramref name="xmlFilePath"/> не соответствовал формату</exception>
-        public static async Task<List<Purchase>> DeserializePurchasesAsync(string xmlFilePath)
+        public async Task<List<Purchase>> DeserializePurchasesAsync(string xmlFilePath)
         {
             XDocument xDoc = await XDocument.LoadAsync(File.OpenRead(xmlFilePath),
                 LoadOptions.None, new CancellationToken());
@@ -95,7 +95,7 @@ namespace OnlineShopDataUploader.Services
         /// </summary>
         /// <param name="purchaseXml">XML-элемент с описанием покупки</param>
         /// <returns>Объект <c>Purchase</c> c десериализованной покупкой</returns>
-        private static Purchase DeserializePurchase(XElement purchaseXml)
+        private Purchase DeserializePurchase(XElement purchaseXml)
         {
             Customer customer = DeserializeCustomer(GetElement(purchaseXml, "user"));
 
@@ -143,7 +143,7 @@ namespace OnlineShopDataUploader.Services
         /// </summary>
         /// <param name="customerXml">XML-элемент с описанием покупателя</param>
         /// <returns>Объект <c>Customer</c> c десериализованным покупателем</returns>
-        private static Customer DeserializeCustomer(XElement customerXml)
+        private Customer DeserializeCustomer(XElement customerXml)
         {
             string fullname = GetElementValue(customerXml, "fio");
             string email = GetElementValue(customerXml, "email");
@@ -160,7 +160,7 @@ namespace OnlineShopDataUploader.Services
         /// </summary>
         /// <param name="productXml">XML-элемент с описанием продукта</param>
         /// <returns>Объект <c>Purchase</c> c десериализованным продуктом</returns>
-        private static Product DeserializeProduct(XElement productXml)
+        private Product DeserializeProduct(XElement productXml)
         {
             string title = GetElementValue(productXml, "name");
             decimal price = decimal.Parse(GetElementValue(productXml, "price"));

@@ -1,7 +1,11 @@
-﻿using OnlineShopDataUploader.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using OnlineShopDataUploader.DataAccess;
+using OnlineShopDataUploader.Models;
 using OnlineShopDataUploader.Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -9,6 +13,8 @@ namespace OnlineShopDataUploader
 {
     internal class Program
     {
+        static ServiceProvider? serviceProvider;
+
         static string GetFilePath(string[] args)
         {
             string? input;
@@ -37,7 +43,8 @@ namespace OnlineShopDataUploader
             Console.WriteLine();
             Console.WriteLine("Парсинг файла...");
 
-            List<Purchase> purchases = await PurchasesXmlDeserializer.DeserializePurchasesAsync(filePath);
+            IPurchasesFileDeserializer purchasesXmlDeserializer = serviceProvider.GetService<IPurchasesFileDeserializer>();
+            List<Purchase> purchases = await purchasesXmlDeserializer.DeserializePurchasesAsync(filePath);
 
             return purchases;
         }
@@ -45,7 +52,7 @@ namespace OnlineShopDataUploader
         static async Task InsertPurchasesAsync(List<Purchase> purchases)
         {
             Console.WriteLine("Подключение к базе данных...");
-            PurchasesInserter purchasesInserter = new();
+            IPurchaseInserter purchasesInserter = serviceProvider.GetService<IPurchaseInserter>();
 
             Console.WriteLine($"Добавление записей...");
 
@@ -53,12 +60,21 @@ namespace OnlineShopDataUploader
             foreach (Purchase purchase in purchases)
             {
                 await purchasesInserter.InsertPurchaseAsync(purchase);
-                Console.WriteLine($"Добавление записей: {++numOfInsertedRecords} / {purchases.Count}");
+                await Console.Out.WriteLineAsync($"Добавление записей: {++numOfInsertedRecords} / {purchases.Count} {DateTime.Now.Millisecond}");                
             }
         }
 
         static async Task Main(string[] args)
         {
+            string connectionString = ConfigurationManager.ConnectionStrings["OnlineShopDB"].ConnectionString;
+
+            IServiceCollection services = new ServiceCollection()
+                .AddDbContext<OnlineShopDbContext>(options => options.UseSqlServer(connectionString))
+                .AddTransient<IPurchasesFileDeserializer, PurchasesXmlDeserializer>()
+                .AddTransient<IPurchaseInserter, PurchaseInserter>();
+
+            serviceProvider = services.BuildServiceProvider();
+
             string filePath = GetFilePath(args);
             List<Purchase> purchases;
 
@@ -72,10 +88,10 @@ namespace OnlineShopDataUploader
                     return;
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 Console.WriteLine("При парсинге файла произошла ошибка:");
-                Console.WriteLine($"{ex.Message}");
+                Console.WriteLine(e.Message);
 
                 return;
             }
@@ -90,6 +106,11 @@ namespace OnlineShopDataUploader
             {
                 Console.WriteLine("При вставке записей произошла ошибка:");
                 Console.WriteLine(e.Message);
+
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine(e.InnerException.Message);
+                }
             }
         }
     }

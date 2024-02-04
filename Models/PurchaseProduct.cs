@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Класс, соответствующий таблице PurchaseProduct в базе данных
-/// Сгенерирован EFCore через <c>Scaffold-DbContext</c>
+/// Сгенерирован <c>EFCore</c>'ом через <c>Scaffold-DbContext</c> 
+/// на основе созданной через <c>DB_Creation_Script.sql</c> базы данных
 /// </summary>
 public partial class PurchaseProduct
 {
