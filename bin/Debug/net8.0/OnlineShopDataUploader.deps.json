@@ -12,6 +12,7 @@
           "Microsoft.EntityFrameworkCore.Design": "8.0.1",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.1",
           "Microsoft.EntityFrameworkCore.Tools": "8.0.1",
+          "Microsoft.Extensions.DependencyInjection": "8.0.0",
           "System.Configuration.ConfigurationManager": "8.0.0"
         },
         "runtime": {

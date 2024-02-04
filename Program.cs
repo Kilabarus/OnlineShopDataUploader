@@ -1,14 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using OnlineShopDataUploader.DataAccess;
 using OnlineShopDataUploader.Models;
 using OnlineShopDataUploader.Services;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace OnlineShopDataUploader
 {
     internal class Program
-    {        
+    {
+        static ServiceProvider? serviceProvider;
+
         static string GetFilePath(string[] args)
         {
             string? input;
@@ -32,27 +38,79 @@ namespace OnlineShopDataUploader
             return input;
         }
 
-        static void Main(string[] args)
-        {            
-            string filePath = GetFilePath(args);
-            
-            List<Purchase> purchases = PurchasesXmlDeserializer.DeserializePurchases(filePath);
+        static async Task<List<Purchase>> DeserializePurchasesAsync(string filePath)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Парсинг файла...");
 
-            if (purchases.Count == 0)
+            IPurchasesFileDeserializer purchasesXmlDeserializer = serviceProvider.GetService<IPurchasesFileDeserializer>();
+            List<Purchase> purchases = await purchasesXmlDeserializer.DeserializePurchasesAsync(filePath);
+
+            return purchases;
+        }
+
+        static async Task InsertPurchasesAsync(List<Purchase> purchases)
+        {
+            Console.WriteLine("Подключение к базе данных...");
+            IPurchaseInserter purchasesInserter = serviceProvider.GetService<IPurchaseInserter>();
+
+            Console.WriteLine($"Добавление записей...");
+
+            int numOfInsertedRecords = 0;
+            foreach (Purchase purchase in purchases)
             {
-                Console.WriteLine("Указанный файл не содержал записей о покупках");
+                await purchasesInserter.InsertPurchaseAsync(purchase);
+                await Console.Out.WriteLineAsync($"Добавление записей: {++numOfInsertedRecords} / {purchases.Count} {DateTime.Now.Millisecond}");                
+            }
+        }
+
+        static async Task Main(string[] args)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["OnlineShopDB"].ConnectionString;
+
+            IServiceCollection services = new ServiceCollection()
+                .AddDbContext<OnlineShopDbContext>(options => options.UseSqlServer(connectionString))
+                .AddTransient<IPurchasesFileDeserializer, PurchasesXmlDeserializer>()
+                .AddTransient<IPurchaseInserter, PurchaseInserter>();
+
+            serviceProvider = services.BuildServiceProvider();
+
+            string filePath = GetFilePath(args);
+            List<Purchase> purchases;
+
+            try
+            {
+                purchases = await DeserializePurchasesAsync(filePath);
+
+                if (purchases.Count == 0)
+                {
+                    Console.WriteLine("Указанный файл не содержал записей о покупках");
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("При парсинге файла произошла ошибка:");
+                Console.WriteLine(e.Message);
+
                 return;
             }
 
             try
             {
-                PurchasesInserter.InsertPurchases(purchases);
+                await InsertPurchasesAsync(purchases);
+
                 Console.WriteLine("Записи из указанного файла были успешно добавлены в базу данных");
             }
             catch (Exception e)
             {
                 Console.WriteLine("При вставке записей произошла ошибка:");
                 Console.WriteLine(e.Message);
+
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine(e.InnerException.Message);
+                }
             }
         }
     }
