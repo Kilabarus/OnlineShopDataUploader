@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OnlineShopDataUploader.Models;
+using System.Configuration;
 
 namespace OnlineShopDataUploader.DataAccess;
 
+/// <summary>
+/// <c>DbContext</c>, сгенерированный для базы данных OnlineShopDb
+/// Сгенерирован <c>EFCore</c>'ом через <c>Scaffold-DbContext</c> 
+/// на основе созданной через <c>DB_Creation_Script.sql</c> базы данных
+/// </summary>
 public partial class OnlineShopDbContext : DbContext
-{
-    private readonly string _connectionString = ConfigurationManager.ConnectionStrings["OnlineShopDB"].ConnectionString;
-
+{    
     public OnlineShopDbContext()
     {
     }
@@ -28,7 +29,7 @@ public partial class OnlineShopDbContext : DbContext
     public virtual DbSet<PurchaseProduct> PurchaseProducts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(_connectionString);
+        => optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["OnlineShopDB"].ConnectionString);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
