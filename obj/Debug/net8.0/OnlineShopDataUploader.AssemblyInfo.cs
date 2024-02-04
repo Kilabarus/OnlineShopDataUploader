@@ -14,7 +14,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OnlineShopDataUploader")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< Updated upstream
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6f65db239e71e157c957276290e7983fdafd1a9c")]
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2d3c53d3f25fc1195c8cb19ff05a5ed50d9898ec")]
+>>>>>>> Stashed changes
 [assembly: System.Reflection.AssemblyProductAttribute("OnlineShopDataUploader")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OnlineShopDataUploader")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
