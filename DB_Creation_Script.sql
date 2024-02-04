@@ -1,10 +1,12 @@
 CREATE DATABASE OnlineShop_DB;
+GO
+
 USE OnlineShop_DB;
 
 CREATE TABLE Customer (
 	Customer_ID  INT 		   CONSTRAINT PK_Customer_ID PRIMARY KEY IDENTITY,
-	FullName 	 NVARCHAR(80)  NOT NULL,
-	EMail 		 VARCHAR(255)  CONSTRAINT UQ_Customer_Email UNIQUE
+	Fullname 	 NVARCHAR(80)  NOT NULL,
+	Email 		 VARCHAR(255)  CONSTRAINT UQ_Customer_Email UNIQUE NOT NULL
 );
 
 CREATE TABLE Purchase (
