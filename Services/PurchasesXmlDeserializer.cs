@@ -3,8 +3,10 @@ using OnlineShopDataUploader.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -15,7 +17,9 @@ namespace OnlineShopDataUploader.Services
         private static IEnumerable<XElement> GetElements(XElement parent, string elementsName)
         {
             IEnumerable<XElement> elements = parent.Elements(elementsName)
-                ?? throw new XmlElementAbsenceException("Отсутствовали запрошенные XML-элементы", parent, elementsName);
+                ?? throw new XmlElementAbsenceException(
+                    $@"Отсутствовали запрошенные XML-элементы ""{elementsName}""", 
+                    parent, elementsName);
 
             return elements;
         }
@@ -23,7 +27,9 @@ namespace OnlineShopDataUploader.Services
         private static XElement GetElement(XElement parent, string elementName)
         {
             XElement element = parent.Element(elementName)
-                ?? throw new XmlElementAbsenceException("Отсутствовал запрошенный XML-элемент", parent, elementName);
+                ?? throw new XmlElementAbsenceException(
+                    $@"Отсутствовал запрошенный XML-элемент ""{elementName}""", 
+                    parent, elementName);
 
             return element;
         }
@@ -33,11 +39,12 @@ namespace OnlineShopDataUploader.Services
             return GetElement(parent, elementName).Value;
         }
 
-        public static List<Purchase> DeserializePurchases(string xmlFilePath)
+        public static async Task<List<Purchase>> DeserializePurchasesAsync(string xmlFilePath)
         {
-            XDocument xDoc = XDocument.Load(xmlFilePath);
+            XDocument xDoc = await XDocument.LoadAsync(File.OpenRead(xmlFilePath), 
+                LoadOptions.None, new CancellationToken());
             XElement ordersXml = xDoc.Element("orders") 
-                ?? throw new XmlFormatException("Файл не соответствовал формату", xmlFilePath);
+                ?? throw new XmlFormatException($@"Файл {xmlFilePath} не соответствовал формату", xmlFilePath);
             
             List<Purchase> purchases = [];
             

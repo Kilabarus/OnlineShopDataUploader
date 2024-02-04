@@ -8,17 +8,14 @@ using System.Threading.Tasks;
 
 namespace OnlineShopDataUploader.Services
 {
-    public static class PurchasesInserter
+    public class PurchasesInserter
     {
-        public static void InsertPurchases(List<Purchase> purchases)
-        {
-            OnlineShopDbContext db = new();
+        readonly OnlineShopDbContext db = new();
 
-            foreach (Purchase purchase in purchases)
-            {
-                db.Purchases.Add(purchase);
-                db.SaveChanges();
-            }
+        public async Task InsertPurchaseAsync(Purchase purchase)
+        {
+            await db.Purchases.AddAsync(purchase);
+            await db.SaveChangesAsync();
         }
     }
 }
