@@ -2,9 +2,7 @@
 using OnlineShopDataUploader.Services;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace OnlineShopDataUploader
@@ -39,22 +37,22 @@ namespace OnlineShopDataUploader
             Console.WriteLine();
             Console.WriteLine("Парсинг файла...");
 
-            List<Purchase> purchases = await PurchasesXmlDeserializer.DeserializePurchasesAsync(filePath);            
+            List<Purchase> purchases = await PurchasesXmlDeserializer.DeserializePurchasesAsync(filePath);
 
             return purchases;
         }
 
         static async Task InsertPurchasesAsync(List<Purchase> purchases)
-        {                        
+        {
             Console.WriteLine("Подключение к базе данных...");
             PurchasesInserter purchasesInserter = new();
-            
+
             Console.WriteLine($"Добавление записей...");
 
             int numOfInsertedRecords = 0;
             foreach (Purchase purchase in purchases)
-            {        
-                await purchasesInserter.InsertPurchaseAsync(purchase);                
+            {
+                await purchasesInserter.InsertPurchaseAsync(purchase);
                 Console.WriteLine($"Добавление записей: {++numOfInsertedRecords} / {purchases.Count}");
             }
         }
@@ -80,12 +78,12 @@ namespace OnlineShopDataUploader
                 Console.WriteLine($"{ex.Message}");
 
                 return;
-            }            
+            }
 
             try
             {
-                await InsertPurchasesAsync(purchases);                                
-                
+                await InsertPurchasesAsync(purchases);
+
                 Console.WriteLine("Записи из указанного файла были успешно добавлены в базу данных");
             }
             catch (Exception e)

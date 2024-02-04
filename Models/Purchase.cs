@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace OnlineShopDataUploader.Models;
 
+/// <summary>
+/// Класс, соответствующий таблице Purchase в базе данных
+/// Сгенерирован EFCore через <c>Scaffold-DbContext</c>
+/// </summary>
 public partial class Purchase
 {
     public int PurchaseId { get; set; }

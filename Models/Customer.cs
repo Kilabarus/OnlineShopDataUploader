@@ -1,8 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace OnlineShopDataUploader.Models;
 
+/// <summary>
+/// Класс, соответствующий таблице Customer в базе данных
+/// Сгенерирован EFCore через <c>Scaffold-DbContext</c>
+/// </summary>
 public partial class Customer
 {
     public int CustomerId { get; set; }

@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OnlineShopDataUploader.Models;
+using System.Configuration;
 
 namespace OnlineShopDataUploader.DataAccess;
 
+/// <summary>
+/// <c>DbContext</c>, сгенерированный для базы данных OnlineShopDb
+/// Сгенерирован EFCore через <c>Scaffold-DbContext</c>
+/// </summary>
 public partial class OnlineShopDbContext : DbContext
 {
+    // Получение строки подключения из файла конфигурации (занесен в .gitignore)
     private readonly string _connectionString = ConfigurationManager.ConnectionStrings["OnlineShopDB"].ConnectionString;
 
     public OnlineShopDbContext()
